@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+
+# OS
+.DS_Store
+
+# Data / outputs
+global_norm_stats.json
+*.pt
+*.pth
+*.zip
+Result/
+results/*.csv
+results/*.zip
+
+# Logs
+*.log
+*.txt
