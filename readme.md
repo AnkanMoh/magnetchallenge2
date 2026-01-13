@@ -9,7 +9,7 @@ This repository contains a **submission-ready** pipeline for MagNet Challenge 2 
 
 ---
 
-##Repository Structure
+Repository Structure
 
 Recommended structure (you may rename folders, just keep paths consistent):
 
