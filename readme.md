@@ -1,11 +1,11 @@
 ```md
 MagNet Challenge 2 — Global LSTM (ΔH) Submission Pipeline
 
-This repository contains a **submission-ready** pipeline for MagNet Challenge 2 that:
-1. Computes (or loads) **global normalization statistics**
-2. Fine-tunes a **global LSTM model** that predicts **ΔH** (next-step change in H)
-3. Evaluates performance on **Pretest** (prints a per-material summary)
-4. Generates the **final Result.zip** in the required format (includes `Parameter_Size.csv`)
+This repository contains a submission-ready pipeline for MagNet Challenge 2 that:
+1. Computes (or loads) global normalization statistics
+2. Fine-tunes a global LSTM model that predicts ΔH (next-step change in H)
+3. Evaluates performance on Pretest (prints a per-material summary)
+4. Generates the final Result.zip in the required format (includes `Parameter_Size.csv`)
 
 ---
 
