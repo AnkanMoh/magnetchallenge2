@@ -32,9 +32,9 @@ Recommended structure (you may rename folders, just keep paths consistent):
 
 ---
 
-## Data Layout Requirements
+Data Layout Requirements
 
-### 1) Training Data (`TRAIN_ROOT`)
+1) Training Data (`TRAIN_ROOT`)
 Expected structure:
 ```
 
@@ -51,7 +51,7 @@ N87/
 
 ```
 
-### 2) Pretest (`PRETEST_ROOT`)
+2) Pretest (`PRETEST_ROOT`)
 Expected structure:
 ```
 
@@ -66,7 +66,7 @@ N87-2_Testing_True.h5  (or) N87-2_Testing_Padded.h5
 
 > `N87-2` is treated as an alias of `N87`.
 
-### 3) Final Evaluation (`FINAL_EVAL_ROOT`)
+3) Final Evaluation (`FINAL_EVAL_ROOT`)
 Expected structure:
 ```
 
@@ -85,7 +85,7 @@ Material E/
 
 ---
 
-## Installation
+Installation
 
 Create a virtual environment and install dependencies:
 
@@ -98,7 +98,7 @@ pip install numpy pandas torch h5py tqdm
 
 ---
 
-## Configuration
+Configuration
 
 This code is configured via environment variables (preferred for clean submissions).
 
@@ -136,7 +136,7 @@ export SEED="42"
 
 ---
 
-## Run
+Run
 
 Execute the full pipeline:
 
@@ -159,7 +159,7 @@ What you should see:
 
 ---
 
-## Submission Output
+Submission Output
 
 The script creates:
 
