@@ -1,5 +1,5 @@
 ```md
-# MagNet Challenge 2 — Global LSTM (ΔH) Submission Pipeline
+MagNet Challenge 2 — Global LSTM (ΔH) Submission Pipeline
 
 This repository contains a **submission-ready** pipeline for MagNet Challenge 2 that:
 1. Computes (or loads) **global normalization statistics**
@@ -9,7 +9,7 @@ This repository contains a **submission-ready** pipeline for MagNet Challenge 2 
 
 ---
 
-## Repository Structure
+##Repository Structure
 
 Recommended structure (you may rename folders, just keep paths consistent):
 
