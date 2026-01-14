@@ -1,5 +1,3 @@
-
-```
 # MagNet Challenge 2 — Robust Sequence-Level H-Field Prediction
 
 This repository contains our solution for **MagNet Challenge 2**, focused on **sequence-level prediction of magnetic field intensity H(t) from B(t)** under realistic and incomplete test conditions.
