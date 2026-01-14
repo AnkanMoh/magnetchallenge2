@@ -98,8 +98,7 @@ This guarantees:
 3. Run:
    ```bash
    python run_magnet2.py
-````
-
+    ````
 4. The script will:
 
    * Compute global normalization statistics
@@ -129,7 +128,3 @@ The final submission will be available at:
 * Physics-aware loss improves physical consistency
 * Robust inference ensures valid predictions for all test sequences
 * Fully compliant with MagNet Challenge rules
-
-
-\
-```
