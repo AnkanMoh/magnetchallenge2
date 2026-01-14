@@ -39,7 +39,7 @@ A key challenge is that the **final evaluation dataset contains incomplete and N
 The model is trained using a **physics-aware loss** that directly targets the competition metrics:
 
 \[
-\mathcal{L} = \text{seq\_err} + \lambda \cdot \text{seq\_ene}
+𝓛 = seq_err + λ · seq_ene
 \]
 
 where:
