@@ -13,10 +13,8 @@ The MagNet Challenge evaluates the reconstruction of the magnetic field intensit
 Performance is evaluated using **two official sequence-level metrics only**:
 
 - **`seq_err`** — sequence prediction error of H(t)
-- **`seq_ene`** — sequence energy error measuring physical consistency via  
-  \[
-  E = \sum_t H(t) \cdot \frac{dB(t)}{dt}
-  \]
+- **`seq_ene`** — sequence energy error measuring physical consistency via E = ∑ₜ H(t) · dB(t)/dt
+
 
 A key challenge is that the **final evaluation dataset contains incomplete and NaN-padded sequences**, where standard sequence models fail due to insufficient context.
 
