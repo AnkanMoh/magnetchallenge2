@@ -1,177 +1,137 @@
-```md
-MagNet Challenge 2 — Global LSTM (ΔH) Submission Pipeline
 
-This repository contains a submission-ready pipeline for MagNet Challenge 2 that:
-1. Computes (or loads) global normalization statistics
-2. Fine-tunes a global LSTM model that predicts ΔH (next-step change in H)
-3. Evaluates performance on Pretest (prints a per-material summary)
-4. Generates the final Result.zip in the required format (includes `Parameter_Size.csv`)
+```markdown
+# MagNet Challenge 2 — Robust Sequence-Level H-Field Prediction
+
+This repository contains our solution for **MagNet Challenge 2**, focused on **sequence-level prediction of magnetic field intensity H(t) from B(t)** under realistic and incomplete test conditions.
+
+The approach combines a **global LSTM model**, **physics-aware training**, and a **robust inference pipeline** that guarantees valid predictions for all test sequences, including those with early missing values (e.g., Material C).
 
 ---
 
-Repository Structure
+## Problem Overview
 
-Recommended structure (you may rename folders, just keep paths consistent):
+The MagNet Challenge evaluates the reconstruction of the magnetic field intensity sequence **H(t)** from the magnetic flux density **B(t)**.
+
+Performance is evaluated using **two official sequence-level metrics only**:
+
+- **`seq_err`** — sequence prediction error of H(t)
+- **`seq_ene`** — sequence energy error measuring physical consistency via  
+  \[
+  E = \sum_t H(t) \cdot \frac{dB(t)}{dt}
+  \]
+
+A key challenge is that the **final evaluation dataset contains incomplete and NaN-padded sequences**, where standard sequence models fail due to insufficient context.
+
+---
+
+## Method Summary
+
+### Model Architecture
+- **Global LSTM** shared across all materials and frequencies
+- Input window length: **80**
+- Input features per timestep:
+  - Magnetic flux density **B(t)**
+  - Magnetic field intensity **H(t)**
+  - Time derivative **dB/dt**
+- Material and frequency embeddings appended to the LSTM output
+- Model predicts **ΔH** instead of absolute H for stability
+
+---
+
+### Training Objective (Aligned with Official Metrics)
+
+The model is trained using a **physics-aware loss** that directly targets the competition metrics:
+
+\[
+\mathcal{L} = \text{seq\_err} + \lambda \cdot \text{seq\_ene}
+\]
+
+where:
+- **seq_err** penalizes sequence-level H prediction error
+- **seq_ene** penalizes deviation in magnetic energy
+- \(\lambda\) controls the strength of the energy regularization
+
+Certain materials (e.g., **3F4, N49**) are weighted more heavily to improve generalization.
+
+---
+
+## Robust Final Evaluation Handling
+
+To handle incomplete test sequences (especially **Material C**), we implement a **robust inference strategy**:
+
+1. Detect the first NaN index in each sequence
+2. If the valid prefix is shorter than 80:
+   - Apply edge-padding using the earliest valid value
+3. Repair internal NaNs using **linear interpolation**
+4. Predict H values **sequentially** using ΔH rollouts
+5. Apply a safety fallback (carry-forward last valid H) to ensure forward progress
+
+This guarantees:
+- **No skipped rows**
+- **No NaNs in final predictions**
+- Valid computation of **seq_err** and **seq_ene**
+
+---
+
+## Repository Structure
 
 ```
 
 .
-├── main.py
-├── artifacts/
-│   ├── baseline_model.pt              # pretrained checkpoint (input)
-│   ├── finetuned_model.pt             # produced after fine-tune (output)
-│   └── global_norm_stats.json         # produced/loaded (output)
-├── data/
-│   ├── train/                         # training CSVs
-│   ├── pretest/                       # pretest h5 files
-│   └── final/                         # final evaluation dataset
-└── outputs/
-└── Result/                        # submission CSVs are written here
-
-```
-
----
-
-Data Layout Requirements
-
-1) Training Data (`TRAIN_ROOT`)
-Expected structure:
-```
-
-TRAIN_ROOT/
-3C90/
-3C90_1_B.csv
-3C90_1_H.csv
-...
-3C90_7_B.csv
-3C90_7_H.csv
-3C94/
-...
-N87/
-
-```
-
-2) Pretest (`PRETEST_ROOT`)
-Expected structure:
-```
-
-PRETEST_ROOT/
-3C90/
-3C90_Testing_True.h5   (or) 3C90_Testing_Padded.h5
-...
-N87-2/
-N87-2_Testing_True.h5  (or) N87-2_Testing_Padded.h5
-
-```
-
-> `N87-2` is treated as an alias of `N87`.
-
-3) Final Evaluation (`FINAL_EVAL_ROOT`)
-Expected structure:
-```
-
-FINAL_EVAL_ROOT/
-Testing/
-Material A/
-A_Padded_H_seq.csv
-A_True_B_seq.csv
-A_True_T.csv
-Material B/
-Material C/
-Material D/
-Material E/
+├── run_magnet2.py        # End-to-end training + inference script
+├── README.md             # This file
+├── .gitignore
 
 ````
 
+**Not included in the repository** (generated at runtime):
+- Model checkpoints (`*.pt`)
+- Submission files (`Result/`, `Result.zip`)
+- Diagnostic logs
+
 ---
 
-Installation
+## How to Run (Kaggle)
 
-Create a virtual environment and install dependencies:
-
-```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -U pip
-pip install numpy pandas torch h5py tqdm
+1. Attach the official MagNet datasets:
+   - Training dataset
+   - Final evaluation dataset
+2. Open a Kaggle notebook
+3. Run:
+   ```bash
+   python run_magnet2.py
 ````
 
----
+4. The script will:
 
-Configuration
+   * Compute global normalization statistics
+   * Train from scratch if no checkpoint is found
+   * Fine-tune the model
+   * Generate `Result.zip` ready for submission
 
-This code is configured via environment variables (preferred for clean submissions).
+The final submission will be available at:
 
-**Minimum required variables:**
-
-* `TRAIN_ROOT`
-* `PRETEST_ROOT`
-* `FINAL_EVAL_ROOT`
-* `START_CHECKPOINT`
-
-Example:
-
-```bash
-export TRAIN_ROOT="./data/train"
-export PRETEST_ROOT="./data/pretest"
-export FINAL_EVAL_ROOT="./data/final"
-export START_CHECKPOINT="./artifacts/baseline_model.pt"
 ```
-
-Optional outputs (defaults shown):
-
-```bash
-export STATS_CACHE_PATH="./artifacts/global_norm_stats.json"
-export FINETUNE_OUT="./artifacts/finetuned_model.pt"
-export FINAL_RESULT_DIR="./outputs/Result"
-```
-
-Optional run controls:
-
-```bash
-export DEVICE="cpu"                 # "cpu" or "cuda"
-export FORCE_RECOMPUTE_STATS="0"    # set "1" to recompute global stats
-export SEED="42"
+/kaggle/working/Result.zip
 ```
 
 ---
 
-Run
+## Reproducibility Notes
 
-Execute the full pipeline:
-
-```bash
-python main.py
-```
-
-What you should see:
-
-* Global stats loaded/saved
-* Fine-tuning progress for `EXTRA_EPOCHS`
-* Pretest summary printed per material
-* `outputs/Result/` populated with:
-
-  * `A_Pred_H_seq.csv ... E_Pred_H_seq.csv`
-  * `Parameter_Size.csv`
-* A `Result.zip` created at:
-
-  * `outputs/Result.zip`
+* Global normalization statistics are computed once and cached
+* Random seeds are fixed for deterministic behavior
+* The pipeline automatically falls back to training from scratch if no checkpoint is found
 
 ---
 
-Submission Output
+## Key Takeaways
 
-The script creates:
-
-* `outputs/Result/Parameter_Size.csv`
-* `outputs/Result/A_Pred_H_seq.csv`
-* `outputs/Result/B_Pred_H_seq.csv`
-* `outputs/Result/C_Pred_H_seq.csv`
-* `outputs/Result/D_Pred_H_seq.csv`
-* `outputs/Result/E_Pred_H_seq.csv`
-* `outputs/Result.zip` (containing the `Result/` folder)
-
-Upload **Result.zip** to the competition submission portal.
+* Optimizes **exactly** the two official metrics: `seq_err` and `seq_ene`
+* Physics-aware loss improves physical consistency
+* Robust inference ensures valid predictions for all test sequences
+* Fully compliant with MagNet Challenge rules
 
 
-
+\
+```
